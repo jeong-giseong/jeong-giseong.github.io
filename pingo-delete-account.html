@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pingo - Account &amp; Data Deletion | 계정 및 데이터 삭제 요청</title>
+  <style>
+    :root {
+      --primary: #6C47FF;
+      --danger: #EF4444;
+      --bg: #F8FAFC;
+      --card: #FFFFFF;
+      --text: #1E293B;
+      --muted: #64748B;
+      --border: #E2E8F0;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 32px 16px;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Pretendard", sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.65;
+    }
+    .container {
+      max-width: 780px;
+      margin: 0 auto;
+      background: var(--card);
+      border-radius: 20px;
+      padding: 36px 32px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+      border: 1px solid var(--border);
+    }
+    .badge {
+      display: inline-block;
+      background: rgba(239, 68, 68, 0.1);
+      color: var(--danger);
+      font-weight: 700;
+      font-size: 13px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      margin-bottom: 12px;
+    }
+    h1 { font-size: 25px; margin: 0 0 8px 0; color: #0F172A; }
+    h2 { font-size: 18px; margin-top: 28px; color: #0F172A; }
+    p, li { font-size: 15px; color: #334155; }
+    .step-box {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 20px;
+      margin: 16px 0;
+    }
+    .btn-delete {
+      display: inline-block;
+      background: var(--danger);
+      color: #FFFFFF;
+      font-weight: 700;
+      padding: 14px 24px;
+      border-radius: 12px;
+      text-decoration: none;
+      margin-top: 12px;
+      border: none;
+      cursor: pointer;
+      font-size: 15px;
+    }
+    .btn-delete:hover { opacity: 0.92; }
+    input, textarea {
+      width: 100%;
+      padding: 12px;
+      margin-top: 6px;
+      margin-bottom: 14px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      font-size: 14px;
+    }
+    label { font-weight: 600; font-size: 14px; }
+    .footer-biz {
+      margin-top: 40px;
+      padding-top: 24px;
+      border-top: 1px solid var(--border);
+      font-size: 13.5px;
+      color: var(--muted);
+      background: #F8FAFC;
+      padding: 20px;
+      border-radius: 12px;
+    }
+    a { color: var(--primary); text-decoration: none; font-weight: 600; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <span class="badge">Pingo (com.jgsoft.pingolive)</span>
+    <h1>Account &amp; Data Deletion Request<br />계정 및 개인정보 영구 삭제 안내</h1>
+    <p>
+      <strong>JG Soft (제이지소프트)</strong> provides users of the <strong>Pingo</strong> app with two immediate ways to permanently delete their account, Circle profile, location history, and all associated personal data.
+    </p>
+
+    <h2>Method 1: Instant In-App Deletion (앱 내부에서 즉시 삭제)</h2>
+    <div class="step-box">
+      <ol>
+        <li>Open the <strong>Pingo</strong> app on your smartphone. (Pingo 앱을 실행합니다.)</li>
+        <li>Tap the <strong>Settings / Profile (설정 / 프로필)</strong> icon at the top or bottom sheet.</li>
+        <li>Select <strong>"Delete Account &amp; Data (계정 및 데이터 영구 삭제)"</strong> and confirm.</li>
+        <li>Your profile, real-time location coordinates, Safe Places, and voice ping logs are <strong>immediately and permanently deleted</strong> from our Supabase servers.</li>
+      </ol>
+    </div>
+
+    <h2>Method 2: Web Deletion Request (앱 삭제 후 웹에서 삭제 요청)</h2>
+    <p>
+      If you have already uninstalled the app, enter your Circle PIN or Nickname below to submit a direct deletion request to our Data Protection Officer (processed within 24 hours).<br />
+      이미 앱을 삭제하신 경우 아래 양식을 통해 삭제 요청을 보내주시면 영업일 기준 24시간 이내에 서버에서 모든 데이터를 영구 파기하고 회신해 드립니다.
+    </p>
+
+    <div class="step-box">
+      <form onsubmit="sendDeletionEmail(event)">
+        <label>Nickname or Circle 6-Digit PIN (사용하셨던 닉네임 또는 6자리 서클 코드) *</label>
+        <input type="text" id="userIdentifier" placeholder="e.g., GilDong / PIN: 482910" required />
+
+        <label>Reply Email Address (처리 결과를 받을 이메일 주소) *</label>
+        <input type="email" id="userEmail" placeholder="your@email.com" required />
+
+        <label>Additional Note (추가 요청사항 - 선택)</label>
+        <textarea id="userNote" rows="3" placeholder="Please delete all my Pingo account and location data."></textarea>
+
+        <button type="submit" class="btn-delete">Submit Permanent Deletion Request (영구 삭제 요청 보내기)</button>
+      </form>
+    </div>
+
+    <h2>Data Deleted vs. Retained (삭제되는 데이터 및 보관 기간)</h2>
+    <ul>
+      <li><strong>Immediately Deleted (즉시 영구 파기 항목):</strong> User nickname, Circle membership, GPS location coordinates, Safe Place geofences, temporary Safe-Return web tokens, and 3-second PTT audio clips.</li>
+      <li><strong>Retained by Law (법령에 따른 예외 보관):</strong> In-app purchase transaction receipts are managed directly by Apple App Store / Google Play under applicable tax and e-commerce laws.</li>
+    </ul>
+
+    <div class="footer-biz">
+      <strong>[Official Developer &amp; Data Controller Information / 공식 사업자 정보]</strong><br />
+      • <strong>Company Name (상호명):</strong> JG Soft (제이지소프트)<br />
+      • <strong>Representative (대표자명):</strong> JEONG GISEONG (정기성)<br />
+      • <strong>Business Registration No. (사업자등록번호):</strong> 564-77-00485<br />
+      • <strong>Business Address (영문 주소):</strong> 103, 45 Yonggu-daero 1890beon-gil, Giheung-gu, Yongin-si, Gyeonggi-do, Republic of Korea<br />
+      • <strong>Business Address (국문 주소):</strong> 경기도 용인시 기흥구 용구대로1890번길 45(보라동)<br />
+      • <strong>Official Contact Email (공식 이메일):</strong> <a href="mailto:jeonggiseong73@gmail.com">jeonggiseong73@gmail.com</a><br />
+      • <strong>Official Website (공식 웹사이트):</strong> <a href="https://jeong-giseong.github.io">https://jeong-giseong.github.io</a>
+    </div>
+  </div>
+
+  <script>
+    function sendDeletionEmail(e) {
+      e.preventDefault();
+      var id = document.getElementById('userIdentifier').value;
+      var email = document.getElementById('userEmail').value;
+      var note = document.getElementById('userNote').value;
+      var subject = encodeURIComponent('[Pingo] Account & Data Deletion Request (' + id + ')');
+      var body = encodeURIComponent(
+        'App: Pingo (com.jgsoft.pingolive)\n' +
+        'Identifier (Nickname / Circle PIN): ' + id + '\n' +
+        'Reply Email: ' + email + '\n' +
+        'Request: Please permanently delete my account and all associated data.\n' +
+        'Note: ' + note
+      );
+      window.location.href = 'mailto:jeonggiseong73@gmail.com?subject=' + subject + '&body=' + body;
+    }
+  </script>
+</body>
+</html>
