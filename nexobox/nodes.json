@@ -1,20 +1,20 @@
 [
   {
-    "id": "remote_us",
+    "id": "official_us",
     "name": "US Official (Remote)",
     "ipLabel": "144.202.126.79:443 • VLESS-Reality",
     "host": "144.202.126.79",
     "port": 443,
-    "configPayload": "vless://6af0ed60-5ffb-46b4-b030-f135902ab50f@144.202.126.79:443?encryption=none&flow=xtls-rprx-vision&security=reality&sni=www.microsoft.com&fp=chrome&pbk=T4RXOuL8...",
+    "configPayload": "vless://6af0ed60-5ffb-46b4-b030-f135902ab50f@144.202.126.79:443?security=reality&sni=www.microsoft.com&fp=chrome&pbk=T4RXOuL8ADWds4XIbHD2cj2YvsNsx3cxIokdYdyRHWQ&sid=0849f42083e83b70&type=tcp&flow=xtls-rprx-vision#NexoBox_US",
     "isProOnly": false
   },
   {
-    "id": "remote_jp",
+    "id": "official_jp",
     "name": "Tokyo Official (Remote Pro)",
     "ipLabel": "45.77.24.145:443 • VLESS-Reality (Pro)",
     "host": "45.77.24.145",
     "port": 443,
-    "configPayload": "vless://0b637afd-391d-4c75-b774-5e66fc877a7c@45.77.24.145:443?encryption=none&flow=xtls-rprx-vision&security=reality&sni=www.microsoft.com&fp=chrome&pbk=EMHBodXh...",
+    "configPayload": "vless://0b637afd-391d-4c75-b774-5e66fc877a7c@45.77.24.145:443?security=reality&sni=www.microsoft.com&fp=chrome&pbk=MjPp344u1lfLKAxUgV3nJ7VwDu3F0hhSwvBIrzAELDI&sid=3508a51dc700c187&type=tcp&flow=xtls-rprx-vision#NexoBox_Tokyo",
     "isProOnly": true
   }
 ]
