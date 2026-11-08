@@ -1,513 +1,173 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>SkyTrack Live | 실시간 항공편 안심 공유 & 보딩패스 - JG Soft</title>
-  <meta property="og:title" content="✈️ 실시간 항공편 위치 및 도착 안내 - SkyTrack">
-  <meta property="og:description" content="앱 설치 없이 현재 비행기 위치, 터미널/게이트, 입국장 도착 예정 시각을 실시간으로 확인하세요.">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>SkyTrack Live Family Flight Radar</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <style>
-    :root {
-      --bg-dark: #090d16;
-      --card-bg: #111827;
-      --card-border: #1f2937;
-      --accent: #3b82f6;
-      --accent-glow: rgba(59, 130, 246, 0.35);
-      --green: #10b981;
-      --amber: #f59e0b;
-      --text-main: #f9fafb;
-      --text-sub: #9ca3af;
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body, html { width: 100%; height: 100%; background: #0B1528; color: #fff; overflow: hidden; }
+    #map { position: absolute; inset: 0; z-index: 1; background: #0B1528; }
+    .leaflet-tile-pane { filter: brightness(0.88) contrast(1.12) saturate(1.1); }
+    .top-pill {
+      position: absolute; top: 16px; left: 16px; right: 16px; z-index: 10;
+      background: rgba(15, 23, 42, 0.78); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(56, 189, 248, 0.4); border-radius: 16px; padding: 12px 16px;
+      display: flex; justify-content: space-between; align-items: center; box-shadow: 0 8px 24px rgba(0,0,0,0.5);
     }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Pretendard", "Segoe UI", Roboto, sans-serif;
-      background-color: var(--bg-dark);
-      color: var(--text-main);
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
+    .badge { padding: 4px 10px; border-radius: 99px; font-size: 11px; font-weight: 800; background: rgba(16,185,129,0.2); color: #34D399; border: 1px solid #10B981; }
+    .bottom-card {
+      position: absolute; bottom: 0; left: 0; right: 0; z-index: 10;
+      background: rgba(15, 23, 42, 0.84); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+      border-top: 1.5px solid rgba(56, 189, 248, 0.5); border-radius: 26px 26px 0 0;
+      padding: 18px 20px calc(20px + env(safe-area-inset-bottom)); box-shadow: 0 -10px 30px rgba(0,0,0,0.7);
     }
-    /* 무료 OpenStreetMap 타일을 항공 관제 다크모드로 자동 변환 (API 키 평생 불필요) */
-    .leaflet-tile-pane {
-      filter: invert(100%) hue-rotate(180deg) brightness(92%) contrast(90%);
-    }
-    .top-bar {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      justify-content: space-between;
-      padding: 12px 16px;
-      background: rgba(17, 24, 39, 0.95);
-      border-bottom: 1px solid var(--card-border);
-      gap: 10px;
-      z-index: 1000;
-    }
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-weight: 800;
-      font-size: 18px;
-      letter-spacing: -0.5px;
-      color: #fff;
-    }
-    .brand span { color: var(--accent); }
-    .search-box {
-      display: flex;
-      gap: 6px;
-      flex: 1;
-      max-width: 460px;
-    }
-    .search-box input {
-      background: #1f2937;
-      border: 1px solid #374151;
-      color: #fff;
-      padding: 8px 12px;
-      border-radius: 8px;
-      font-size: 14px;
-      outline: none;
-    }
-    .search-box input[type="text"] { width: 110px; text-transform: uppercase; font-weight: 700; }
-    .search-box input[type="date"] { flex: 1; }
-    .search-box button {
-      background: var(--accent);
-      color: #fff;
-      border: none;
-      padding: 8px 14px;
-      border-radius: 8px;
-      font-weight: 700;
-      font-size: 14px;
-      cursor: pointer;
-      white-space: nowrap;
-    }
-    #map {
-      width: 100%;
-      height: 44vh;
-      min-height: 300px;
-      background: #06090f;
-      position: relative;
-    }
-    .radar-badge {
-      position: absolute;
-      top: 12px;
-      left: 12px;
-      z-index: 500;
-      background: rgba(9, 13, 22, 0.85);
-      border: 1px solid var(--card-border);
-      padding: 6px 12px;
-      border-radius: 20px;
-      font-size: 12px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      backdrop-filter: blur(6px);
-    }
-    .pulse-dot {
-      width: 8px;
-      height: 8px;
-      background: var(--green);
-      border-radius: 50%;
-      box-shadow: 0 0 8px var(--green);
-      animation: pulse 1.5s infinite;
+    .route-row { display: flex; justify-content: space-between; align-items: center; margin: 10px 0 14px; }
+    .iata { font-size: 34px; font-weight: 900; letter-spacing: -1px; }
+    .time { font-size: 13px; color: #94A3B8; margin-top: 2px; }
+    .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 12px; }
+    .cell { background: rgba(30, 41, 59, 0.75); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 8px; text-align: center; }
+    .cell-label { font-size: 10px; color: #94A3B8; font-weight: 700; }
+    .cell-val { font-size: 15px; font-weight: 900; margin-top: 4px; color: #FBBF24; }
+    .timeline { background: rgba(30, 58, 138, 0.3); border: 1px solid rgba(59, 130, 246, 0.45); border-radius: 12px; padding: 10px 12px; }
+    .tl-title { font-size: 11.5px; color: #93C5FD; font-weight: 800; margin-bottom: 8px; }
+    .tl-steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+    .tl-step { background: rgba(0,0,0,0.3); border-radius: 8px; padding: 6px; text-align: center; }
+    .tl-step.active { background: rgba(16, 185, 129, 0.22); border: 1px solid #10B981; }
+    .pulse-ring {
+      width: 20px; height: 20px; border-radius: 50%; background: #38BDF8;
+      box-shadow: 0 0 0 0 rgba(56, 189, 248, 0.8); animation: pulse 1.8s infinite;
     }
     @keyframes pulse {
-      0% { transform: scale(0.95); opacity: 1; }
-      50% { transform: scale(1.3); opacity: 0.5; }
-      100% { transform: scale(0.95); opacity: 1; }
+      0% { box-shadow: 0 0 0 0 rgba(56, 189, 248, 0.8); }
+      70% { box-shadow: 0 0 0 18px rgba(56, 189, 248, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(56, 189, 248, 0); }
     }
-    .main-wrap {
-      max-width: 680px;
-      width: 100%;
-      margin: -24px auto 20px;
-      padding: 0 14px;
-      position: relative;
-      z-index: 600;
-      flex: 1;
-    }
-    .boarding-card {
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      border-radius: 18px;
-      padding: 22px 20px;
-      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.55);
-    }
-    .status-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 18px;
-    }
-    .flight-title { font-size: 20px; font-weight: 800; }
-    .status-pill {
-      padding: 4px 12px;
-      border-radius: 99px;
-      font-size: 12px;
-      font-weight: 700;
-      text-transform: uppercase;
-      background: rgba(16, 185, 129, 0.15);
-      color: var(--green);
-      border: 1px solid rgba(16, 185, 129, 0.35);
-    }
-    .route-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 20px;
-    }
-    .airport-col { text-align: left; }
-    .airport-col.right { text-align: right; }
-    .iata-code {
-      font-size: 36px;
-      font-weight: 900;
-      letter-spacing: -1px;
-      color: #fff;
-      line-height: 1.1;
-    }
-    .time-label { font-size: 14px; color: var(--text-sub); margin-top: 4px; }
-    .route-center { flex: 1; padding: 0 18px; text-align: center; }
-    .progress-track {
-      width: 100%;
-      height: 6px;
-      background: #1f2937;
-      border-radius: 99px;
-      position: relative;
-      margin: 10px 0;
-    }
-    .progress-fill {
-      height: 100%;
-      background: linear-gradient(90deg, #2563eb, #60a5fa);
-      border-radius: 99px;
-      width: 0%;
-      transition: width 0.6s ease;
-    }
-    .remaining-text { font-size: 12px; color: #60a5fa; font-weight: 600; }
-    .info-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 8px;
-      padding: 14px 0;
-      border-top: 1px dashed #374151;
-      border-bottom: 1px dashed #374151;
-      margin-bottom: 16px;
-    }
-    .info-cell {
-      background: rgba(31, 41, 55, 0.5);
-      padding: 10px;
-      border-radius: 10px;
-      text-align: center;
-    }
-    .info-cell .lbl { font-size: 11px; color: var(--text-sub); margin-bottom: 4px; }
-    .info-cell .val { font-size: 16px; font-weight: 800; color: #fff; }
-    .info-cell .val.highlight { color: var(--amber); }
-    .pickup-box {
-      background: rgba(37, 99, 235, 0.12);
-      border: 1px solid rgba(59, 130, 246, 0.35);
-      border-radius: 12px;
-      padding: 14px 16px;
-      margin-bottom: 16px;
-      font-size: 13.5px;
-      line-height: 1.5;
-    }
-    .pickup-box strong { color: #93c5fd; }
-    .telemetry-bar {
-      display: flex;
-      justify-content: space-around;
-      font-size: 12px;
-      color: var(--text-sub);
-      margin-bottom: 16px;
-    }
-    .telemetry-bar b { color: #e5e7eb; }
-    .btn-group { display: flex; gap: 10px; }
-    .btn {
-      flex: 1;
-      padding: 13px;
-      border-radius: 10px;
-      font-weight: 700;
-      font-size: 14px;
-      text-align: center;
-      cursor: pointer;
-      border: none;
-      text-decoration: none;
-    }
-    .btn-share { background: #1f2937; color: #fff; border: 1px solid #374151; }
-    .btn-app { background: var(--accent); color: #fff; box-shadow: 0 4px 14px var(--accent-glow); }
-    footer {
-      text-align: center;
-      padding: 20px 14px;
-      font-size: 12px;
-      color: #6b7280;
-      border-top: 1px solid #1f2937;
-    }
-    footer a { color: #9ca3af; text-decoration: none; margin: 0 6px; }
   </style>
 </head>
 <body>
-
-  <div class="top-bar">
-    <div class="brand">✈️ Sky<span>Track</span> Live</div>
-    <div class="search-box">
-      <input type="text" id="flightInput" placeholder="편명 (KE901)" value="KE901">
-      <input type="date" id="dateInput">
-      <button onclick="fetchFlightData(false)">실시간 조회</button>
+  <div id="map"></div>
+  <div class="top-pill">
+    <div>
+      <div style="font-size:15px; font-weight:900; color:#38BDF8;" id="headerFlight">✈️ SkyTrack Family Live</div>
+      <div style="font-size:11px; color:#CBD5E1; margin-top:2px;" id="headerSub">실시간 가족 항공편 관제 연결 중...</div>
     </div>
+    <div class="badge" id="statusBadge">LIVE SYNC</div>
   </div>
 
-  <div id="map">
-    <div class="radar-badge">
-      <div class="pulse-dot"></div>
-      <span id="radarSourceText">실시간 하이브리드 레이더 가동 중</span>
+  <div class="bottom-card">
+    <div class="route-row">
+      <div>
+        <div class="iata" id="depIata">---</div>
+        <div class="time" id="depTime">--:--</div>
+      </div>
+      <div style="flex:1; padding: 0 16px; text-align:center;">
+        <div style="height:6px; background:#1E293B; border-radius:99px; overflow:hidden;">
+          <div id="progBar" style="height:100%; width:40%; background:linear-gradient(90deg,#0284C7,#38BDF8);"></div>
+        </div>
+        <div style="font-size:11px; color:#38BDF8; font-weight:800; margin-top:6px;" id="progText">실시간 위치 동기화 중</div>
+      </div>
+      <div style="text-align:right;">
+        <div class="iata" id="arrIata">---</div>
+        <div class="time" id="arrTime">--:--</div>
+      </div>
     </div>
-  </div>
 
-  <div class="main-wrap">
-    <div class="boarding-card">
-      <div class="status-row">
-        <div class="flight-title" id="dispFlightNo">KE901</div>
-        <div class="status-pill" id="dispStatus">조회 중...</div>
-      </div>
+    <div class="grid-4">
+      <div class="cell"><div class="cell-label">출발 터미널</div><div class="cell-val" style="color:#fff;" id="depTerm">-</div></div>
+      <div class="cell"><div class="cell-label">탑승구</div><div class="cell-val" id="depGate">-</div></div>
+      <div class="cell"><div class="cell-label">도착 터미널</div><div class="cell-val" style="color:#fff;" id="arrTerm">-</div></div>
+      <div class="cell"><div class="cell-label">수하물 벨트</div><div class="cell-val" style="color:#34D399;" id="bagBelt">배정 대기</div></div>
+    </div>
 
-      <div class="route-row">
-        <div class="airport-col">
-          <div class="iata-code" id="dispDepIata">ICN</div>
-          <div class="time-label" id="dispDepTime">출발 --:--</div>
-        </div>
-        <div class="route-center">
-          <div class="remaining-text" id="dispRemaining">위치 계산 중</div>
-          <div class="progress-track">
-            <div class="progress-fill" id="dispProgress"></div>
-          </div>
-          <div style="font-size:11px; color:#6b7280;" id="dispRouteSub">실시간 항로 추적</div>
-        </div>
-        <div class="airport-col right">
-          <div class="iata-code" id="dispArrIata">CDG</div>
-          <div class="time-label" id="dispArrTime">도착 --:--</div>
-        </div>
-      </div>
-
-      <div class="info-grid">
-        <div class="info-cell">
-          <div class="lbl">출발 터미널</div>
-          <div class="val" id="dispDepTerm">-</div>
-        </div>
-        <div class="info-cell">
-          <div class="lbl">탑승구(게이트)</div>
-          <div class="val highlight" id="dispDepGate">-</div>
-        </div>
-        <div class="info-cell">
-          <div class="lbl">도착 터미널</div>
-          <div class="val" id="dispArrTerm">-</div>
-        </div>
-        <div class="info-cell">
-          <div class="lbl">수하물 벨트</div>
-          <div class="val highlight" id="dispBaggage">배정 대기</div>
-        </div>
-      </div>
-
-      <div class="pickup-box" id="dispPickupGuide">
-        <strong>💡 마중 및 픽업 안내:</strong> 항공편 데이터를 불러오면 착륙 예정 시각과 수하물 수취 시간을 합산한 <strong>예상 입국장 출구 도착 시각</strong>을 자동으로 알려드립니다.
-      </div>
-
-      <div class="telemetry-bar">
-        <span>고도: <b id="dispAlt">- ft</b></span>
-        <span>속도: <b id="dispSpeed">- km/h</b></span>
-        <span>기수 방향: <b id="dispHeading">-°</b></span>
-      </div>
-
-      <div class="btn-group">
-        <button class="btn btn-share" onclick="shareCurrentFlight()">🔗 카톡/링크 공유</button>
-        <button class="btn btn-app" onclick="alert('SkyTrack 앱에서 게이트 변경 및 착륙 즉시 푸시 알림을 받으세요! (스토어 출시 준비 중)')">🔔 착륙 즉시 알림 받기</button>
+    <div class="timeline">
+      <div class="tl-title">🚗 마중·입국장 탈출 예상 타임라인 (자동 1분 갱신)</div>
+      <div class="tl-steps">
+        <div class="tl-step"><div style="font-size:10px; color:#94A3B8;">1. 게이트 접안</div><div style="font-size:13px; font-weight:900; margin-top:2px;" id="step1">--:--</div></div>
+        <div class="tl-step"><div style="font-size:10px; color:#94A3B8;">2. 수하물 수취</div><div style="font-size:13px; font-weight:900; margin-top:2px;" id="step2">--:--</div></div>
+        <div class="tl-step active"><div style="font-size:10px; color:#6EE7B7;">3. 입국장 출구</div><div style="font-size:13px; font-weight:900; margin-top:2px;" id="step3">--:--</div></div>
       </div>
     </div>
   </div>
-
-  <footer>
-    <div><strong>JG Soft (제이지소프트)</strong> | 대표: JEONG GISEONG (정기성) | 사업자등록번호: 564-77-00485</div>
-    <div>경기도 용인시 기흥구 용구대로1890번길 45(보라동) | 문의: jeonggiseong73@gmail.com</div>
-    <div style="margin-top:8px;">
-      <a href="https://jeong-giseong.github.io/skytrack-privacy.html">개인정보처리방침</a> |
-      <a href="https://jeong-giseong.github.io/skytrack-terms.html">서비스 이용약관</a> |
-      <a href="https://jeong-giseong.github.io/skytrack-delete-account.html">계정 삭제 안내</a>
-    </div>
-  </footer>
 
   <script>
-    const SUPABASE_PROXY_URL = "https://uwljunvyyclkrezqotmy.supabase.co/functions/v1/skytrack-proxy";
-    const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_ifdL5U3UB5mm4ns0_f1pKg_ssHAey9x";
+    const params = new URLSearchParams(window.location.search);
+    const flightIata = (params.get('flight') || 'KE901').toUpperCase();
+    const flightDate = params.get('date') || new Date().toISOString().slice(0, 10);
+    const sharePass = params.get('pass') || 'verified';
 
-    let map, planeMarker, routeLine;
-    let currentFlight = null;
-    let deadReckoningTimer = null;
+    const map = L.map('map', { zoomControl: false }).setView([36.5, 127.5], 4);
+    // API Key가 영구적으로 필요 없는 OpenStreetMap 표준 타일
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 16 }).addTo(map);
 
-    window.addEventListener("DOMContentLoaded", () => {
-      initMap();
-      const params = new URLSearchParams(window.location.search);
-      const urlFlight = params.get("flight") || "KE901";
-      const todayStr = new Date().toISOString().split("T")[0];
-      const urlDate = params.get("date") || todayStr;
+    let routeLine = null;
+    let planeMarker = null;
 
-      document.getElementById("flightInput").value = urlFlight.toUpperCase();
-      document.getElementById("dateInput").value = urlDate;
-
-      fetchFlightData(false);
-    });
-
-    // 100% API 키 불필요 공식 OpenStreetMap 타일 적용
-    function initMap() {
-      map = L.map("map", { zoomControl: false }).setView([37.4602, 126.4407], 4);
-      L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{x}/{y}.png", {
-        attribution: "&copy; OpenStreetMap contributors",
-        maxZoom: 18
-      }).addTo(map);
+    function fmtTime(isoStr, addMin = 0) {
+      if (!isoStr) return '--:--';
+      const d = new Date(new Date(isoStr).getTime() + addMin * 60000);
+      return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
     }
 
-    function createPlaneIcon(heading) {
-      return L.divIcon({
-        className: "custom-plane",
-        html: `<div style="transform: rotate(${heading || 0}deg); font-size: 28px; filter: drop-shadow(0 0 8px #3b82f6); line-height:1;">✈️</div>`,
-        iconSize: [30, 30],
-        iconAnchor: [15, 15]
-      });
-    }
-
-    async function fetchFlightData(forceRefresh) {
-      const flightIata = document.getElementById("flightInput").value.trim().toUpperCase();
-      const flightDate = document.getElementById("dateInput").value;
-      if (!flightIata || !flightDate) return;
-
-      document.getElementById("dispStatus").innerText = "실시간 수신 중...";
-
+    async function syncFlight() {
       try {
-        // Supabase 신형 Publishable Key 호환 헤더 (Authorization 헤더에 비-JWT 삽입 금지)
-        const res = await fetch(SUPABASE_PROXY_URL, {
-          method: "POST",
+        const res = await fetch('https://uwljunvyyclkrezqotmy.supabase.co/functions/v1/skytrack-proxy', {
+          method: 'POST',
           headers: {
-            "apikey": SUPABASE_PUBLISHABLE_KEY,
-            "Content-Type": "application/json"
+            'apikey': 'sb_publishable_ifdL5U3UB5mm4ns0_f1pKg_ssHAey9x',
+            'Content-Type': 'application/json'
           },
           body: JSON.stringify({
             flight_iata: flightIata,
             flight_date: flightDate,
-            force_refresh: forceRefresh
+            share_pass: sharePass,
+            client_premium: sharePass === 'verified'
           })
         });
-
         const data = await res.json();
-        if (!res.ok || !data.flight) {
-          throw new Error(data.error || data.message || "항공편 정보를 불러올 수 없습니다.");
-        }
+        if (!data.flight) return;
+        const f = data.flight;
+        const raw = f.raw_schedule_json || {};
+        const dLoc = raw.departure?.airport?.location || { lat: 37.4602, lon: 126.4407 };
+        const aLoc = raw.arrival?.airport?.location || { lat: 35.7720, lon: 140.3929 };
 
-        currentFlight = data.flight;
-        renderFlightUI(data);
-        startClientDeadReckoning();
-      } catch (err) {
-        document.getElementById("dispStatus").innerText = "연결 확인 필요";
-        console.error("Fetch Error:", err);
-        alert("항공편 조회 안내: " + err.message);
-      }
-    }
+        document.getElementById('headerFlight').textContent = `✈️ ${f.flight_iata} 실시간 가족 공유 레이더`;
+        document.getElementById('headerSub').textContent = `고도 ${Math.round(f.altitude || 0).toLocaleString()} ft • 속도 ${Math.round(f.speed_kmh || 0)} km/h`;
+        document.getElementById('statusBadge').textContent = f.status.toUpperCase();
+        document.getElementById('depIata').textContent = f.dep_iata;
+        document.getElementById('arrIata').textContent = f.arr_iata;
+        document.getElementById('depTime').textContent = fmtTime(f.dep_time_utc);
+        document.getElementById('arrTime').textContent = fmtTime(f.arr_time_utc);
+        document.getElementById('depTerm').textContent = f.dep_terminal || '-';
+        document.getElementById('depGate').textContent = f.dep_gate || '-';
+        document.getElementById('arrTerm').textContent = f.arr_terminal || '-';
+        document.getElementById('bagBelt').textContent = f.baggage_belt || '배정 대기';
 
-    function renderFlightUI(apiData) {
-      const f = apiData.flight;
-      const raw = f.raw_schedule_json || {};
+        document.getElementById('step1').textContent = fmtTime(f.arr_time_utc, 10);
+        document.getElementById('step2').textContent = fmtTime(f.arr_time_utc, 25);
+        document.getElementById('step3').textContent = fmtTime(f.arr_time_utc, 35);
 
-      document.getElementById("dispFlightNo").innerText = `${f.flight_iata} (${raw.airline?.name || "실시간 추적"})`;
-      document.getElementById("dispStatus").innerText = f.status.toUpperCase();
-      document.getElementById("dispDepIata").innerText = f.dep_iata || "---";
-      document.getElementById("dispArrIata").innerText = f.arr_iata || "---";
+        const now = Date.now();
+        const depMs = new Date(f.dep_time_utc).getTime();
+        const arrMs = new Date(f.arr_time_utc).getTime();
+        const pct = Math.min(100, Math.max(5, Math.round(((now - depMs) / Math.max(1, arrMs - depMs)) * 100)));
+        document.getElementById('progBar').style.width = `${pct}%`;
+        document.getElementById('progText').textContent = `${pct}% 진행 중`;
 
-      document.getElementById("dispDepTerm").innerText = f.dep_terminal || "-";
-      document.getElementById("dispDepGate").innerText = f.dep_gate || "미정";
-      document.getElementById("dispArrTerm").innerText = f.arr_terminal || "-";
-      document.getElementById("dispBaggage").innerText = f.baggage_belt || "착륙 후 배정";
+        if (routeLine) map.removeLayer(routeLine);
+        routeLine = L.polyline([[dLoc.lat, dLoc.lon], [f.lat, f.lon], [aLoc.lat, aLoc.lon]], { color: '#38BDF8', weight: 4 }).addTo(map);
 
-      document.getElementById("dispAlt").innerText = f.altitude ? `${Number(f.altitude).toLocaleString()} ft` : "지상 대기";
-      document.getElementById("dispSpeed").innerText = f.speed_kmh ? `${f.speed_kmh} km/h` : "0 km/h";
-      document.getElementById("dispHeading").innerText = f.heading !== null ? `${f.heading}°` : "-";
-
-      const nowMs = Date.now();
-      const depMs = f.dep_time_utc ? new Date(f.dep_time_utc).getTime() : 0;
-      const arrMs = f.arr_time_utc ? new Date(f.arr_time_utc).getTime() : 0;
-
-      if (depMs > 0) {
-        const depDate = new Date(depMs);
-        document.getElementById("dispDepTime").innerText = `출발 ${depDate.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`;
-      }
-      if (arrMs > 0) {
-        const arrDate = new Date(arrMs);
-        document.getElementById("dispArrTime").innerText = `도착 ${arrDate.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`;
-
-        const exitDate = new Date(arrMs + 35 * 60 * 1000);
-        const exitTimeStr = exitDate.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-        document.getElementById("dispPickupGuide").innerHTML =
-          `<strong>🚘 마중/픽업 추천 시각:</strong> 착륙 후 수하물 수취 및 입국심사(약 35분)를 고려하면, 탑승객은 <strong>${exitTimeStr}경 ${f.arr_iata || '도착지'} 공항 ${f.arr_terminal ? f.arr_terminal + '터미널 ' : ''}입국장 출구</strong>로 나올 예정입니다.`;
-      }
-
-      if (depMs > 0 && arrMs > depMs) {
-        const pct = Math.min(100, Math.max(0, Math.round(((nowMs - depMs) / (arrMs - depMs)) * 100)));
-        document.getElementById("dispProgress").style.width = `${pct}%`;
-        const remainMin = Math.max(0, Math.round((arrMs - nowMs) / 60000));
-        const rh = Math.floor(remainMin / 60);
-        const rm = remainMin % 60;
-        document.getElementById("dispRemaining").innerText =
-          nowMs < depMs ? "이륙 대기 중" : (remainMin > 0 ? `착륙까지 ${rh}시간 ${rm}분 남음 (${pct}%)` : "착륙 완료");
-      }
-
-      const depLoc = raw.departure?.airport?.location;
-      const arrLoc = raw.arrival?.airport?.location;
-
-      if (routeLine) map.removeLayer(routeLine);
-      if (depLoc && arrLoc) {
-        routeLine = L.polyline([[depLoc.lat, depLoc.lon], [arrLoc.lat, arrLoc.lon]], {
-          color: "#3b82f6",
-          weight: 2,
-          dashArray: "6, 8",
-          opacity: 0.8
-        }).addTo(map);
-      }
-
-      if (f.lat !== null && f.lon !== null) {
+        const icon = L.divIcon({ className: '', html: '<div class="pulse-ring"></div>', iconSize: [20, 20] });
         if (planeMarker) map.removeLayer(planeMarker);
-        planeMarker = L.marker([f.lat, f.lon], {
-          icon: createPlaneIcon((f.heading || 0) - 45)
-        }).addTo(map);
-        map.setView([f.lat, f.lon], 4);
-      }
+        planeMarker = L.marker([f.lat, f.lon], { icon }).addTo(map);
+        map.panTo([f.lat, f.lon]);
+      } catch (e) {}
     }
 
-    function startClientDeadReckoning() {
-      if (deadReckoningTimer) clearInterval(deadReckoningTimer);
-      deadReckoningTimer = setInterval(() => {
-        if (!currentFlight || !planeMarker || !currentFlight.speed_kmh || currentFlight.speed_kmh <= 0) return;
-        const speedMetersPerSec = (currentFlight.speed_kmh * 1000) / 3600;
-        const headingRad = ((currentFlight.heading || 0) * Math.PI) / 180;
-
-        const dLat = (speedMetersPerSec * Math.cos(headingRad)) / 111320;
-        const dLon = (speedMetersPerSec * Math.sin(headingRad)) / (111320 * Math.cos((currentFlight.lat * Math.PI) / 180));
-
-        currentFlight.lat = Number((currentFlight.lat + dLat).toFixed(6));
-        currentFlight.lon = Number((currentFlight.lon + dLon).toFixed(6));
-        planeMarker.setLatLng([currentFlight.lat, currentFlight.lon]);
-      }, 1000);
-    }
-
-    function shareCurrentFlight() {
-      const flightIata = document.getElementById("flightInput").value.trim().toUpperCase();
-      const flightDate = document.getElementById("dateInput").value;
-      const shareUrl = `https://jeong-giseong.github.io/skytrack-view.html?flight=${flightIata}&date=${flightDate}`;
-
-      if (navigator.share) {
-        navigator.share({
-          title: `✈️ [${flightIata}] 실시간 비행 위치 공유`,
-          text: `앱 설치 없이 링크를 눌러 현재 비행기 위치와 도착 예정 시간을 확인하세요!`,
-          url: shareUrl
-        });
-      } else {
-        navigator.clipboard.writeText(shareUrl);
-        alert("가족 공유용 실시간 추적 링크가 복사되었습니다!\n카카오톡이나 문자에 붙여넣어 보내보세요:\n\n" + shareUrl);
-      }
-    }
+    syncFlight();
+    setInterval(syncFlight, 60000);
   </script>
 </body>
 </html>
