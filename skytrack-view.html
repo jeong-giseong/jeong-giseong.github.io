@@ -28,17 +28,14 @@
 
     #map { position: absolute; inset: 0; z-index: 1; background: transparent; }
 
-    /* 낮 모드: 연파랑 바다 유지 + 육지 따뜻한 샌드 베이지 보정 */
     body.day-mode .leaflet-tile-pane {
       filter: sepia(10%) saturate(106%) brightness(101%) contrast(98%);
     }
-    /* 밤 모드: 심야 항공 관제 다크 네이비 레이더 */
     body.night-mode .leaflet-tile-pane {
       filter: invert(100%) hue-rotate(192deg) brightness(86%) contrast(96%) saturate(65%);
     }
     .leaflet-control-attribution { display: none !important; }
 
-    /* 상단 트루 글래스모피즘 검색 카드 (alpha: 0.58 + blur: 24px) */
     .top-bar {
       position: absolute; top: 12px; left: 14px; right: 14px; z-index: 10;
       display: flex; flex-direction: column; gap: 6px; pointer-events: none;
@@ -46,7 +43,7 @@
     .search-box {
       pointer-events: auto;
       display: flex; align-items: center; gap: 8px;
-      background: rgba(15, 23, 42, 0.60);
+      background: rgba(15, 23, 42, 0.64);
       backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
       border: 1.1px solid rgba(255, 255, 255, 0.24);
       border-radius: 22px;
@@ -55,9 +52,10 @@
     }
     .tier-badge {
       padding: 4px 8px; border-radius: 8px; font-size: 10px; font-weight: 900;
-      background: #2563EB; color: #fff; white-space: nowrap;
+      background: rgba(255, 255, 255, 0.12); border: 1px solid rgba(56, 189, 248, 0.55);
+      color: #7DD3FC; white-space: nowrap; cursor: pointer;
     }
-    .tier-badge.pro { background: #FBBF24; color: #000; }
+    .tier-badge.pro { background: #FBBF24; border-color: #FDE68A; color: #000; }
     .search-input {
       flex: 1; background: transparent; border: none; outline: none;
       color: #fff; font-size: 15px; font-weight: 900; text-transform: uppercase; min-width: 70px;
@@ -69,14 +67,13 @@
     }
     .search-btn {
       background: var(--sky); color: #090D16; border: none; border-radius: 50%;
-      width: 30px; height: 30px; font-weight: 900; cursor: pointer;
+      width: 32px; height: 32px; font-weight: 900; cursor: pointer;
       display: flex; align-items: center; justify-content: center;
     }
 
-    /* 우측 플로팅 글래스 컨트롤 도크 */
     .right-dock {
       position: absolute; right: 14px; top: 82px; z-index: 10;
-      background: rgba(15, 23, 42, 0.58);
+      background: rgba(15, 23, 42, 0.62);
       backdrop-filter: blur(22px); -webkit-backdrop-filter: blur(22px);
       border: 1px solid rgba(255, 255, 255, 0.22);
       border-radius: 18px;
@@ -84,7 +81,7 @@
       box-shadow: 0 6px 18px rgba(0, 0, 0, 0.22);
     }
     .dock-btn {
-      width: 35px; height: 35px; border-radius: 11px; border: none;
+      width: 36px; height: 36px; border-radius: 11px; border: none;
       background: transparent; color: var(--sky); font-size: 16px; cursor: pointer;
       display: flex; align-items: center; justify-content: center;
     }
@@ -92,21 +89,19 @@
       background: rgba(16, 185, 129, 0.25); border: 1px solid var(--emerald); color: #34D399;
     }
 
-    /* 하단 3단계 프로그레시브 트루 글래스모피즘 모달 (이중 차폐 완전 제거) */
     .bottom-sheet {
       position: absolute; left: 0; right: 0; bottom: 0; z-index: 10;
-      max-height: 84vh; overflow-y: auto;
-      background: linear-gradient(180deg, rgba(15, 23, 42, 0.60) 0%, rgba(9, 13, 22, 0.68) 100%);
+      max-height: 85vh; overflow-y: auto;
+      background: linear-gradient(180deg, rgba(15, 23, 42, 0.64) 0%, rgba(9, 13, 22, 0.74) 100%);
       backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px);
       border-top: 1.2px solid rgba(255, 255, 255, 0.28);
       border-radius: 32px 32px 0 0;
-      padding: 8px 22px calc(18px + env(safe-area-inset-bottom));
+      padding: 8px 20px calc(18px + env(safe-area-inset-bottom));
       box-shadow: 0 -6px 28px rgba(0, 0, 0, 0.35);
       transition: background 0.35s ease;
     }
-    /* 3단 상세 확장 시 가독성 집중을 위해 배경 농도 소폭 상향 */
     .bottom-sheet.stage-3 {
-      background: linear-gradient(180deg, rgba(15, 23, 42, 0.76) 0%, rgba(9, 13, 22, 0.84) 100%);
+      background: linear-gradient(180deg, rgba(15, 23, 42, 0.80) 0%, rgba(9, 13, 22, 0.88) 100%);
     }
     .bottom-sheet.stage-1 .stage-2-block,
     .bottom-sheet.stage-1 .stage-3-block { display: none; }
@@ -122,15 +117,14 @@
       display: flex; align-items: center; justify-content: space-between; gap: 8px;
       margin-bottom: 12px; cursor: pointer;
     }
-    .flight-title { font-size: 13.5px; font-weight: 900; color: var(--sky); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .airline-sub { font-size: 10.5px; font-weight: 600; color: rgba(255, 255, 255, 0.65); margin-top: 2px; }
+    .flight-title { font-size: 14px; font-weight: 900; color: var(--sky); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .airline-sub { font-size: 10.5px; font-weight: 600; color: rgba(255, 255, 255, 0.68); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .status-pill {
       padding: 4px 10px; border-radius: 99px; font-size: 10.5px; font-weight: 900;
       border: 1px solid rgba(56, 189, 248, 0.65); background: rgba(56, 189, 248, 0.16); color: var(--sky);
       white-space: nowrap;
     }
 
-    /* 1단계 메인 출도착 히어로 블록 */
     .route-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
     .airport-col { width: 28%; }
     .airport-col.right { text-align: right; }
@@ -155,9 +149,8 @@
     }
     .track-label { font-size: 11px; font-weight: 800; color: var(--sky); margin-top: 4px; white-space: nowrap; }
 
-    /* 2단계 초투명 4분할 핵심 게이트 바 (alpha: 0.08, 불필요한 서브 캡슐 다이어트) */
     .clean-metric-bar {
-      margin-top: 16px;
+      margin-top: 15px;
       display: flex; align-items: center;
       background: rgba(255, 255, 255, 0.08);
       border: 1px solid rgba(255, 255, 255, 0.12);
@@ -170,9 +163,8 @@
     .metric-val { font-size: 17px; font-weight: 900; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .metric-val.gold { color: #FBBF24; }
 
-    /* 2단계 클린 3단계 타임라인 카드 */
     .timeline-box {
-      margin-top: 12px;
+      margin-top: 11px;
       background: rgba(56, 189, 248, 0.10);
       border: 1px solid rgba(255, 255, 255, 0.14);
       border-radius: 18px; padding: 12px 14px;
@@ -192,12 +184,50 @@
     .t-step.active .t-step-name { color: #6EE7B7; }
     .t-step-time { font-size: 14px; font-weight: 900; color: #fff; }
 
+    /* 마중객 -> 진성 앱 유저 전환 바이럴 퍼널 배너 */
+    .viral-cta-banner {
+      margin-top: 11px;
+      display: flex; align-items: center; gap: 10px;
+      background: linear-gradient(135deg, rgba(6, 95, 70, 0.58) 0%, rgba(30, 58, 138, 0.52) 100%);
+      border: 1.1px solid rgba(52, 211, 153, 0.62);
+      border-radius: 16px; padding: 10px 12px;
+      cursor: pointer;
+      box-shadow: 0 4px 16px rgba(16, 185, 129, 0.16);
+      transition: transform 0.15s ease;
+    }
+    .viral-cta-banner:active { transform: scale(0.985); }
+    .viral-bell-wrap {
+      width: 34px; height: 34px; border-radius: 10px; flex-shrink: 0;
+      background: rgba(52, 211, 153, 0.20); border: 1px solid rgba(52, 211, 153, 0.5);
+      display: flex; align-items: center; justify-content: center; font-size: 16px;
+      animation: gentleBell 2.2s infinite ease-in-out;
+    }
+    @keyframes gentleBell {
+      0%, 100% { transform: rotate(0deg); }
+      15% { transform: rotate(12deg); }
+      30% { transform: rotate(-10deg); }
+      45% { transform: rotate(0deg); }
+    }
+    .viral-cta-texts { flex: 1; overflow: hidden; }
+    .viral-cta-title {
+      font-size: 12px; font-weight: 900; color: #ECFDF5;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .viral-cta-sub {
+      font-size: 10px; font-weight: 700; color: #A7F3D0; margin-top: 2px;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .viral-cta-pill {
+      padding: 6px 10px; border-radius: 10px; flex-shrink: 0;
+      background: #34D399; color: #052E16;
+      font-size: 11px; font-weight: 900; white-space: nowrap;
+    }
+
     .expand-hint {
-      margin-top: 10px; text-align: center; font-size: 11px; font-weight: 700;
+      margin-top: 9px; text-align: center; font-size: 11px; font-weight: 700;
       color: rgba(255, 255, 255, 0.55); cursor: pointer;
     }
 
-    /* 3단계 풀 상세 브리핑 섹션 카드들 (alpha: 0.07 초투명 글래스) */
     .glass-detail-card {
       margin-top: 10px;
       background: rgba(255, 255, 255, 0.07);
@@ -236,6 +266,46 @@
       0% { transform: scale(0.4); opacity: 0.95; }
       100% { transform: scale(1.35); opacity: 0; }
     }
+
+    /* 스토어 다운로드 & 웹 알림 퍼널 모달 */
+    .modal-backdrop {
+      position: fixed; inset: 0; z-index: 50;
+      background: rgba(4, 8, 16, 0.72);
+      backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+      display: none; align-items: center; justify-content: center; padding: 20px;
+    }
+    .modal-backdrop.open { display: flex; }
+    .modal-card {
+      width: 100%; max-width: 380px;
+      background: linear-gradient(160deg, #111827 0%, #090D16 100%);
+      border: 1.4px solid rgba(56, 189, 248, 0.55);
+      border-radius: 24px; padding: 22px 20px 18px;
+      box-shadow: 0 20px 44px rgba(0, 0, 0, 0.65); text-align: center;
+    }
+    .modal-copy-badge {
+      display: inline-block; margin-bottom: 10px;
+      padding: 4px 10px; border-radius: 99px;
+      background: rgba(16, 185, 129, 0.18); border: 1px solid rgba(52, 211, 153, 0.5);
+      color: #6EE7B7; font-size: 10.5px; font-weight: 800;
+    }
+    .modal-title { font-size: 17.5px; font-weight: 900; color: #fff; line-height: 1.3; }
+    .modal-desc { font-size: 12.5px; color: rgba(255, 255, 255, 0.72); margin: 8px 0 16px; line-height: 1.45; }
+    .store-btn {
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      width: 100%; padding: 13px 14px; border-radius: 13px; border: none;
+      font-size: 13.5px; font-weight: 900; text-decoration: none; cursor: pointer;
+      margin-bottom: 9px;
+    }
+    .store-btn.primary { background: #38BDF8; color: #090D16; }
+    .store-btn.secondary { background: #FBBF24; color: #090D16; }
+    .store-btn.ghost {
+      background: rgba(255, 255, 255, 0.08); color: #E2E8F0;
+      border: 1px solid rgba(255, 255, 255, 0.18); font-size: 12px;
+    }
+    .modal-close {
+      margin-top: 4px; background: transparent; border: none;
+      color: rgba(255, 255, 255, 0.48); font-size: 12px; font-weight: 700; cursor: pointer; padding: 6px 12px;
+    }
   </style>
 </head>
 <body class="day-mode">
@@ -243,9 +313,9 @@
 
   <div class="top-bar">
     <div class="search-box">
-      <span id="tierBadge" class="tier-badge">FREE</span>
-      <input id="flightInput" class="search-input" type="text" placeholder="KE901, OZ501" />
-      <input id="dateInput" class="date-input" type="date" />
+      <span id="tierBadge" class="tier-badge" onclick="handleViralCtaTap()">FREE</span>
+      <input id="flightInput" class="search-input" type="text" placeholder="KE901, OZ501" onkeydown="if(event.key==='Enter') fetchFlightData(true)" />
+      <input id="dateInput" class="date-input" type="date" onchange="fetchFlightData(true)" />
       <button class="search-btn" onclick="fetchFlightData(true)">🔍</button>
     </div>
   </div>
@@ -262,9 +332,8 @@
       <div class="drag-handle"></div>
     </div>
 
-    <!-- [1단계: 미니 피크 뷰] -->
     <div class="header-row" onclick="cycleSheetStage()">
-      <div style="overflow:hidden;">
+      <div style="overflow:hidden; flex:1;">
         <div id="headerTitle" class="flight-title">Loading flight telemetry...</div>
         <div id="airlineSub" class="airline-sub" style="display:none;"></div>
       </div>
@@ -301,7 +370,6 @@
       </div>
     </div>
 
-    <!-- [2단계: 핵심 보딩패스 뷰 (기본 표시)] -->
     <div class="stage-2-block">
       <div class="clean-metric-bar">
         <div class="metric-item">
@@ -343,10 +411,19 @@
         </div>
       </div>
 
+      <!-- 마중 웹 바이럴 퍼널 배너 -->
+      <div class="viral-cta-banner" onclick="handleViralCtaTap()">
+        <div class="viral-bell-wrap">🔔</div>
+        <div class="viral-cta-texts">
+          <div id="viralCtaTitle" class="viral-cta-title">입국장 도착·수하물 벨트 즉시 앱 알림 받기</div>
+          <div id="viralCtaSub" class="viral-cta-sub">전광판보다 빠른 실시간 관제 • 첫 비행 48시간 무료</div>
+        </div>
+        <div id="viralCtaBtn" class="viral-cta-pill">앱으로 열기</div>
+      </div>
+
       <div id="expandHint" class="expand-hint" onclick="cycleSheetStage()">▲ Tap for weather, aircraft & altitude details</div>
     </div>
 
-    <!-- [3단계: 풀 상세 브리핑 뷰 (확장 시 표시)] -->
     <div class="stage-3-block">
       <div id="airportMetaCard" class="glass-detail-card" style="display:none; color:#93C5FD;"></div>
 
@@ -374,9 +451,26 @@
     </div>
   </div>
 
+  <!-- 앱 설치 & 웹 임시 알림 퍼널 모달 -->
+  <div id="viralModalBackdrop" class="modal-backdrop" onclick="if(event.target===this) closeViralModal()">
+    <div class="modal-card">
+      <div id="modalCopyBadge" class="modal-copy-badge">📋 편명 자동 복사 완료</div>
+      <div id="modalTitle" class="modal-title">SkyTrack 앱으로 실시간 푸시 알림을 받아보세요</div>
+      <div id="modalDesc" class="modal-desc">화면을 꺼두어도 착륙, 도착 게이트, 수하물 벨트 배정 즉시 알림을 보내드립니다. 첫 비행 48시간 무료 체험이 자동 제공됩니다.</div>
+      <a id="playStoreLink" class="store-btn primary" href="https://play.google.com/store/apps/details?id=com.jgsoft.skytrack" target="_blank" rel="noopener">▶️ Google Play에서 다운로드</a>
+      <a id="appStoreLink" class="store-btn secondary" href="https://apps.apple.com/search?term=SkyTrack" target="_blank" rel="noopener">🍎 App Store에서 다운로드</a>
+      <button id="webPushBtn" class="store-btn ghost" onclick="enableWebBrowserAlert()">🔔 설치 전 현재 브라우저 알림 켜두기</button>
+      <button id="modalCloseBtn" class="modal-close" onclick="closeViralModal()">닫기</button>
+    </div>
+  </div>
+
   <script>
     const SUPABASE_URL = 'https://uwljunvyyclkrezqotmy.supabase.co/functions/v1/skytrack-proxy';
     const SUPABASE_KEY = 'sb_publishable_ifdL5U3UB5mm4ns0_f1pKg_ssHAey9x';
+
+    // 스토어 출시 후 App Store 숫자 ID 확정 시 아래 상수 한 줄만 교체하면 전체 반영됩니다.
+    const ANDROID_STORE_URL = 'https://play.google.com/store/apps/details?id=com.jgsoft.skytrack';
+    const IOS_STORE_URL = 'https://apps.apple.com/search?term=SkyTrack';
 
     const params = new URLSearchParams(window.location.search);
     const rawLang = (params.get('lang') || navigator.language || 'ko').slice(0, 2).toLowerCase();
@@ -393,7 +487,16 @@
         arrTitle:'🚶 마중·입국장 탈출 타임라인', s1Arr:'게이트 접안', s2Arr:'수하물 수취', s3Arr:'입국장 출구',
         rush:'혼잡 시간대 반영', wxDelay:'악기상 조업 지연 반영', syncNow:'실시간 동기화됨 • 터치하여 갱신',
         expand:'▲ 터치하여 현지 날씨·기체·고도 상세 펼치기',
-        wClear:'맑음', wCloud:'구름 조금·흐림', wFog:'안개', wRain:'비·소나기', wSnow:'눈', wStorm:'뇌우'
+        wClear:'맑음', wCloud:'구름 조금·흐림', wFog:'안개', wRain:'비·소나기', wSnow:'눈', wStorm:'뇌우',
+        ctaPre:'📲 탑승구 변경·이륙 즉시 앱 푸시 알림 받기',
+        ctaArr:'입국장 도착 10분 전·수하물 벨트 앱 알림 받기',
+        ctaSub:'전광판보다 빠른 실시간 관제 • 첫 비행 48시간 무료',
+        ctaBtn:'앱 열기',
+        mCopied:'📋 편명 자동 복사 완료 (설치 후 1초 붙여넣기)',
+        mTitle:'SkyTrack 앱으로 실시간 푸시 알림을 받아보세요',
+        mDesc:'화면을 꺼두어도 착륙·도착 게이트·수하물 벨트 배정 즉시 알려드립니다. 첫 비행은 결제 없이 무료로 작동합니다.',
+        mPlay:'▶️ Google Play에서 받기', mIos:'🍎 App Store에서 받기',
+        mWebPush:'🔔 설치 전 현재 웹 브라우저 알림 켜두기', mWebPushOn:'✅ 웹 브라우저 실시간 알림 작동 중', mClose:'닫기'
       },
       en: {
         status:'CRUISING LIVE', sched:'SCHEDULED', depTerm:'DEP TERM', gate:'GATE', arrTerm:'ARR TERM',
@@ -405,7 +508,16 @@
         arrTitle:'🚶 Arrival & Exit Timeline', s1Arr:'Gate Arrival', s2Arr:'Baggage Claim', s3Arr:'Terminal Exit',
         rush:'Peak Hour', wxDelay:'Weather Delay', syncNow:'Live Synced • Tap to refresh',
         expand:'▲ Tap to expand weather, aircraft & telemetry',
-        wClear:'Clear Sky', wCloud:'Partly Cloudy', wFog:'Fog', wRain:'Rain', wSnow:'Snow', wStorm:'Thunderstorm'
+        wClear:'Clear Sky', wCloud:'Partly Cloudy', wFog:'Fog', wRain:'Rain', wSnow:'Snow', wStorm:'Thunderstorm',
+        ctaPre:'📲 Get Instant Gate Change & Takeoff App Alerts',
+        ctaArr:'Get Arrival Exit & Baggage Belt Push Alerts',
+        ctaSub:'Faster than airport screens • 1st flight 100% free',
+        ctaBtn:'Open App',
+        mCopied:'📋 Flight code copied for 1-tap paste in app',
+        mTitle:'Unlock Instant Push Alerts on SkyTrack App',
+        mDesc:'Receive lock-screen alerts the moment the plane lands or a baggage belt is assigned. Free 48h trial included.',
+        mPlay:'▶️ Get it on Google Play', mIos:'🍎 Download on the App Store',
+        mWebPush:'🔔 Enable temporary browser alerts while watching', mWebPushOn:'✅ Browser live alerts active', mClose:'Close'
       },
       ja: {
         status:'リアルタイム巡航中', sched:'出発待機中', depTerm:'出発ターミナル', gate:'搭乗口', arrTerm:'到着ターミナル',
@@ -417,7 +529,16 @@
         arrTitle:'🚶 到着・出口通過タイムライン', s1Arr:'ゲート到着', s2Arr:'手荷物受取', s3Arr:'到着ロビー出口',
         rush:'混雑時間帯', wxDelay:'悪天候遅延', syncNow:'リアルタイム同期済 • タップで更新',
         expand:'▲ タップして天気・機材・高度の詳細を表示',
-        wClear:'快晴', wCloud:'晴れ時々曇り', wFog:'霧', wRain:'雨', wSnow:'雪', wStorm:'雷雨'
+        wClear:'快晴', wCloud:'晴れ時々曇り', wFog:'霧', wRain:'雨', wSnow:'雪', wStorm:'雷雨',
+        ctaPre:'📲 搭乗口変更・離陸の即時プッシュ通知を受け取る',
+        ctaArr:'到着ロビー10分前・手荷物ベルト通知をアプリで受信',
+        ctaSub:'空港案内板より速い通知 • 初回フライト48時間無料',
+        ctaBtn:'アプリで開く',
+        mCopied:'📋 便名をコピーしました（起動後ワンタップ貼付）',
+        mTitle:'SkyTrackアプリで即時プッシュ通知を受信',
+        mDesc:'画面を閉じていても着陸や手荷物ベルト決定を即座にお知らせします。初回フライトは無料で体験できます。',
+        mPlay:'▶️ Google Playで入手', mIos:'🍎 App Storeからダウンロード',
+        mWebPush:'🔔 ブラウザ通知を一時的にオンにする', mWebPushOn:'✅ ブラウザ通知稼働中', mClose:'閉じる'
       },
       zh: {
         status:'实时巡航中', sched:'等待起飞', depTerm:'出发航站楼', gate:'登机口', arrTerm:'到达航站楼',
@@ -429,7 +550,16 @@
         arrTitle:'🚶 到达与出站时间轴', s1Arr:'滑行靠桥', s2Arr:'行李提取', s3Arr:'接机出口',
         rush:'高峰时段', wxDelay:'天气延迟', syncNow:'实时已同步 • 点击刷新',
         expand:'▲ 点击展开天气、机型与高度详情',
-        wClear:'晴朗', wCloud:'多云', wFog:'雾', wRain:'降雨', wSnow:'降雪', wStorm:'雷暴'
+        wClear:'晴朗', wCloud:'多云', wFog:'雾', wRain:'降雨', wSnow:'降雪', wStorm:'雷暴',
+        ctaPre:'📲 使用 App 接收登机口变更与起飞即时推送',
+        ctaArr:'接机出站前10分钟与行李转盘分配 App 提醒',
+        ctaSub:'比航站楼大屏更快 • 首飞48小时完全免费',
+        ctaBtn:'打开 App',
+        mCopied:'📋 航班号已复制，安装后可一键粘贴追踪',
+        mTitle:'下载 SkyTrack App 开启锁屏实时推送',
+        mDesc:'锁屏状态下也可即时收到落地、到达口与行李转盘通知，首次航班免费解锁。',
+        mPlay:'▶️ 前往 Google Play 下载', mIos:'🍎 前往 App Store 下载',
+        mWebPush:'🔔 临时开启当前网页通知', mWebPushOn:'✅ 网页实时提醒已开启', mClose:'关闭'
       },
       es: {
         status:'EN VUELO EN VIVO', sched:'PROGRAMADO', depTerm:'TERM SALIDA', gate:'PUERTA', arrTerm:'TERM LLEGADA',
@@ -441,7 +571,16 @@
         arrTitle:'🚶 Cronología de Salida', s1Arr:'En Puerta', s2Arr:'Equipaje', s3Arr:'Salida Hall',
         rush:'Hora punta', wxDelay:'Demora clima', syncNow:'Sincronizado • Tocar para actualizar',
         expand:'▲ Tocar para ver clima, avión y altitud',
-        wClear:'Despejado', wCloud:'Nublado', wFog:'Niebla', wRain:'Lluvia', wSnow:'Nieve', wStorm:'Tormenta'
+        wClear:'Despejado', wCloud:'Nublado', wFog:'Niebla', wRain:'Lluvia', wSnow:'Nieve', wStorm:'Tormenta',
+        ctaPre:'📲 Reciba alertas de puerta y despegue en la App',
+        ctaArr:'Alertas de llegada y cinta de equipaje en la App',
+        ctaSub:'Más rápido que las pantallas • 1er vuelo gratis',
+        ctaBtn:'Abrir App',
+        mCopied:'📋 Vuelo copiado para pegar en 1 toque',
+        mTitle:'Reciba Alertas Push en Vivo con SkyTrack',
+        mDesc:'Avisos al instante al aterrizar o asignarse cinta de equipaje incluso con pantalla bloqueada.',
+        mPlay:'▶️ Descargar en Google Play', mIos:'🍎 Descargar en App Store',
+        mWebPush:'🔔 Activar avisos temporales en navegador', mWebPushOn:'✅ Avisos web activos', mClose:'Cerrar'
       },
       fr: {
         status:'EN VOL EN DIRECT', sched:'PROGRAMMÉ', depTerm:'TERM DÉPART', gate:'PORTE', arrTerm:'TERM ARRIVÉE',
@@ -453,7 +592,16 @@
         arrTitle:'🚶 Chronologie Sortie & Accueil', s1Arr:'Arrivée Porte', s2Arr:'Tapis Bagages', s3Arr:'Sortie Hall',
         rush:'Heure pointe', wxDelay:'Retard météo', syncNow:'Synchronisé • Toucher pour actualiser',
         expand:'▲ Toucher pour météo, appareil et altitude',
-        wClear:'Dégagé', wCloud:'Nuageux', wFog:'Brouillard', wRain:'Pluie', wSnow:'Neige', wStorm:'Orage'
+        wClear:'Dégagé', wCloud:'Nuageux', wFog:'Brouillard', wRain:'Pluie', wSnow:'Neige', wStorm:'Orage',
+        ctaPre:'📲 Alertes changement de porte et décollage sur l\'App',
+        ctaArr:'Alertes arrivée et tapis bagages en direct sur l\'App',
+        ctaSub:'Plus rapide que les écrans • 1er vol 100% gratuit',
+        ctaBtn:'Ouvrir l\'App',
+        mCopied:'📋 Vol copié pour collage instantané dans l\'App',
+        mTitle:'Activez les Alertes Push sur l\'App SkyTrack',
+        mDesc:'Notifications instantanées à l\'atterrissage et à l\'attribution du tapis bagages, écran verrouillé.',
+        mPlay:'▶️ Disponible sur Google Play', mIos:'🍎 Télécharger sur l\'App Store',
+        mWebPush:'🔔 Activer les alertes navigateur temporaires', mWebPushOn:'✅ Alertes navigateur actives', mClose:'Fermer'
       }
     };
     const T = I18N[LANG] || I18N.en;
@@ -463,30 +611,49 @@
       PEK:480, PVG:480, HKG:480, TPE:480, SIN:480, MNL:480,
       BKK:420, SGN:420, HAN:420, DAD:420, DXB:240, DOH:180, IST:180,
       CDG:60, FRA:60, AMS:60, FCO:60, MAD:60, LHR:0,
-      JFK:-300, ATL:-300, ORD:-360, LAX:-480, SFO:-480, SEA:-480, HNL:-600, SYD:600
+      JFK:-300, EWR:-300, ATL:-300, ORD:-360, LAX:-480, SFO:-480, SEA:-480, HNL:-600, SYD:600
     };
     const DST_AIRPORTS = new Set(['CDG','LHR','FRA','AMS','FCO','MAD','BCN','JFK','EWR','LAX','SFO','ORD','SEA','ATL','YVR','YYZ']);
     const MEGA_HUBS = new Set(['ICN','CDG','LHR','JFK','LAX','SFO','ORD','ATL','FRA','AMS','DXB','DOH','SIN','HKG','NRT','BKK']);
     const COMPACT_AIRPORTS = new Set(['GMP','CJU','PUS','FUK','HND','TSA','ITM']);
 
     let isDayMode = true;
-    let sheetStage = 2; // 1: Mini, 2: Core Default, 3: Full Details
+    let sheetStage = 2;
 
-    const map = L.map('map', { zoomControl: false }).setView([36.5, 127.5], 3.4);
+    const map = L.map('map', { zoomControl: false, worldCopyJump: true }).setView([36.5, 127.5], 3.4);
     const dayTileLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}');
     const nightTileLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}');
     dayTileLayer.addTo(map);
 
-    let layerGroup = L.layerGroup().addTo(map);
+    const solarLayerGroup = L.layerGroup().addTo(map);
+    const layerGroup = L.layerGroup().addTo(map);
+
     let currentFlight = null;
     let isLiveSource = false;
     let cockpitMode = false;
     let weatherCache = {};
     let crowdBeltMemory = {};
+    let lastFetchEpochMs = 0;
+    let isCurrentExitDone = false;
+    let webAlertEnabled = false;
+    let prevWatchedBelt = '';
+    let prevWatchedLanded = false;
 
     document.getElementById('bagLabel').textContent = T.bag;
     document.getElementById('windWarnBadge').textContent = T.windWarn;
     document.getElementById('expandHint').textContent = T.expand;
+    document.getElementById('viralCtaTitle').textContent = T.ctaArr;
+    document.getElementById('viralCtaSub').textContent = T.ctaSub;
+    document.getElementById('viralCtaBtn').textContent = T.ctaBtn;
+    document.getElementById('modalCopyBadge').textContent = T.mCopied;
+    document.getElementById('modalTitle').textContent = T.mTitle;
+    document.getElementById('modalDesc').textContent = T.mDesc;
+    document.getElementById('playStoreLink').textContent = T.mPlay;
+    document.getElementById('playStoreLink').href = ANDROID_STORE_URL;
+    document.getElementById('appStoreLink').textContent = T.mIos;
+    document.getElementById('appStoreLink').href = IOS_STORE_URL;
+    document.getElementById('webPushBtn').textContent = T.mWebPush;
+    document.getElementById('modalCloseBtn').textContent = T.mClose;
 
     const initFlight = (params.get('flight') || 'KE901').toUpperCase();
     const initDate = params.get('date') || new Date().toISOString().slice(0, 10);
@@ -496,8 +663,123 @@
     document.getElementById('dateInput').value = initDate;
     if (isVerifiedPass) {
       const b = document.getElementById('tierBadge');
-      b.textContent = '⚡ LIVE PASS';
+      b.textContent = 'PRO LINK';
       b.classList.add('pro');
+    }
+
+    // 태양 그림자 곡선(Solar Terminator) 순수 삼각함수 렌더링
+    function computeSolarPolygon(utcDate, shiftDeg) {
+      const d = (utcDate.getTime() - Date.UTC(2000, 0, 1, 12, 0, 0)) / 86400000;
+      const norm360 = (v) => ((v % 360) + 360) % 360;
+      const meanLon = norm360(280.460 + 0.9856474 * d);
+      const meanAnomRad = norm360(357.528 + 0.9856003 * d) * Math.PI / 180;
+      const eclLonRad = norm360(meanLon + 1.915 * Math.sin(meanAnomRad) + 0.020 * Math.sin(2 * meanAnomRad)) * Math.PI / 180;
+      const obliqRad = (23.439 - 0.0000004 * d) * Math.PI / 180;
+
+      let declRad = Math.asin(Math.sin(obliqRad) * Math.sin(eclLonRad));
+      if (Math.abs(declRad) < 0.0035) declRad = declRad < 0 ? -0.0035 : 0.0035;
+
+      const raDeg = Math.atan2(Math.cos(obliqRad) * Math.sin(eclLonRad), Math.cos(eclLonRad)) * 180 / Math.PI;
+      const gmstDeg = norm360(280.46061837 + 360.98564736629 * d);
+      let subLon = norm360(raDeg - gmstDeg);
+      if (subLon > 180) subLon -= 360;
+
+      const closeNorth = declRad < 0;
+      const poleLat = closeNorth ? 85.0 : -85.0;
+      const tanDecl = Math.tan(declRad);
+      const pts = [];
+
+      for (let lon = -180; lon <= 180; lon += 4) {
+        const haRad = (lon - subLon) * Math.PI / 180;
+        let lat = Math.atan(-Math.cos(haRad) / tanDecl) * 180 / Math.PI;
+        if (shiftDeg !== 0) lat += closeNorth ? -shiftDeg : shiftDeg;
+        pts.push([Math.max(-84.8, Math.min(84.8, lat)), lon]);
+      }
+      pts.push([poleLat, 180]);
+      pts.push([poleLat, -180]);
+      return pts;
+    }
+
+    function drawSolarTerminator() {
+      solarLayerGroup.clearLayers();
+      const now = new Date();
+      const twilightPts = computeSolarPolygon(now, -5.5);
+      const nightPts = computeSolarPolygon(now, 0);
+
+      L.polygon(twilightPts, {
+        stroke: false,
+        fillColor: isDayMode ? '#1E3A8A' : '#000000',
+        fillOpacity: isDayMode ? 0.08 : 0.14,
+        interactive: false
+      }).addTo(solarLayerGroup);
+
+      L.polygon(nightPts, {
+        color: isDayMode ? 'rgba(30, 64, 175, 0.22)' : 'rgba(56, 189, 248, 0.18)',
+        weight: 1,
+        fillColor: isDayMode ? '#0F172A' : '#000000',
+        fillOpacity: isDayMode ? 0.15 : 0.24,
+        interactive: false
+      }).addTo(solarLayerGroup);
+    }
+
+    function splitDatelineSegments(pts) {
+      if (!pts || pts.length === 0) return [];
+      const segments = [];
+      let current = [pts[0]];
+      for (let i = 1; i < pts.length; i++) {
+        if (Math.abs(pts[i][1] - pts[i - 1][1]) > 180) {
+          segments.push(current);
+          current = [pts[i]];
+        } else {
+          current.push(pts[i]);
+        }
+      }
+      if (current.length > 0) segments.push(current);
+      return segments;
+    }
+
+    function handleViralCtaTap() {
+      const fIata = document.getElementById('flightInput').value.trim().toUpperCase();
+      const fDate = document.getElementById('dateInput').value;
+      if (navigator.clipboard && fIata) {
+        navigator.clipboard.writeText(`${fIata} ${fDate}`).catch(() => {});
+      }
+
+      const ua = navigator.userAgent || '';
+      const isIOS = /iPhone|iPad|iPod/i.test(ua);
+      const isAndroid = /Android/i.test(ua);
+      document.getElementById('playStoreLink').style.display = isIOS ? 'none' : 'flex';
+      document.getElementById('appStoreLink').style.display = isAndroid ? 'none' : 'flex';
+
+      // 앱 커스텀 스킴 실행 시도 후 미설치 시 스토어 안내 모달 오픈
+      const deepLink = `skytrack://track?flight=${encodeURIComponent(fIata)}&date=${encodeURIComponent(fDate)}`;
+      const clickedAt = Date.now();
+      window.location.href = deepLink;
+
+      setTimeout(() => {
+        if (!document.hidden && Date.now() - clickedAt < 1800) {
+          document.getElementById('viralModalBackdrop').classList.add('open');
+        }
+      }, 650);
+    }
+
+    function closeViralModal() {
+      document.getElementById('viralModalBackdrop').classList.remove('open');
+    }
+
+    async function enableWebBrowserAlert() {
+      if (!('Notification' in window)) {
+        closeViralModal();
+        return;
+      }
+      const perm = await Notification.requestPermission();
+      if (perm === 'granted') {
+        webAlertEnabled = true;
+        const btn = document.getElementById('webPushBtn');
+        btn.textContent = T.mWebPushOn;
+        btn.style.borderColor = '#34D399';
+        btn.style.color = '#6EE7B7';
+      }
     }
 
     function toggleMapTheme() {
@@ -511,6 +793,7 @@
         map.removeLayer(dayTileLayer);
         nightTileLayer.addTo(map);
       }
+      drawSolarTerminator();
       renderFlight(false);
     }
 
@@ -617,32 +900,59 @@
       return `${String(d.getUTCHours()).padStart(2, '0')}:${String(d.getUTCMinutes()).padStart(2, '0')}`;
     }
 
-    async function fetchFlightData(force = false, beltReport = null) {
+    async function fetchFlightData(manualForce = false, beltReport = null) {
       const fIata = document.getElementById('flightInput').value.trim().toUpperCase();
       const fDate = document.getElementById('dateInput').value;
       if (!fIata) return;
 
       if (beltReport) crowdBeltMemory[`${fIata}_${fDate}`] = beltReport;
+      lastFetchEpochMs = Date.now();
 
       try {
         const res = await fetch(SUPABASE_URL, {
           method: 'POST',
-          headers: { 'apikey': SUPABASE_KEY, 'Content-Type': 'application/json' },
+          headers: {
+            'apikey': SUPABASE_KEY,
+            'Content-Type': 'application/json',
+            'x-skytrack-shared-cache': '60s'
+          },
           body: JSON.stringify({
             flight_iata: fIata,
             flight_date: fDate,
-            force_refresh: force,
+            force_refresh: manualForce,
             client_premium: isVerifiedPass,
             ...(beltReport ? { reported_baggage_belt: beltReport } : {})
           })
         });
         const data = await res.json();
         if (data && data.flight) {
-          currentFlight = data.flight;
+          const nextFlight = data.flight;
+          checkWebBrowserNotifications(nextFlight);
+          currentFlight = nextFlight;
           isLiveSource = data.source === 'live_radar';
-          renderFlight(true);
+          document.title = `[${nextFlight.flight_iata}] ${nextFlight.dep_iata} ➔ ${nextFlight.arr_iata} • SkyTrack`;
+          renderFlight(manualForce || !prevWatchedBelt);
         }
       } catch (_) {}
+    }
+
+    function checkWebBrowserNotifications(nextF) {
+      const nextBelt = (nextF.baggage_belt || '').trim();
+      const nextLanded = String(nextF.status || '').toUpperCase().includes('LAND');
+      if (webAlertEnabled && currentFlight && currentFlight.flight_key === nextF.flight_key) {
+        if (!prevWatchedLanded && nextLanded) {
+          new Notification(`🛬 [${nextF.flight_iata}] ${nextF.arr_iata} Landed!`, {
+            body: `${nextF.arr_iata} airport arrival confirmed.`
+          });
+        }
+        if (nextBelt && nextBelt !== prevWatchedBelt) {
+          new Notification(`🧳 [${nextF.flight_iata}] Belt ${nextBelt}`, {
+            body: `Baggage carousel [${nextBelt}] assigned.`
+          });
+        }
+      }
+      prevWatchedBelt = nextBelt;
+      prevWatchedLanded = nextLanded;
     }
 
     async function reportBaggageBelt() {
@@ -667,6 +977,7 @@
       const depMap = raw.departure || {};
       const arrMap = raw.arrival || {};
       const acftMap = raw.aircraft || {};
+      const airlineMap = raw.airline || {};
       const depLoc = depMap.airport?.location || { lat: 37.4602, lon: 126.4407 };
       const arrLoc = arrMap.airport?.location || { lat: 35.7720, lon: 140.3929 };
 
@@ -705,6 +1016,7 @@
       if (!isLanded && effArrMs && nowMs > effArrMs && distToArr <= 55) isLanded = true;
 
       const isPreDep = !isLanded && !isLiveSource && depMs && nowMs < depMs;
+      document.getElementById('viralCtaTitle').textContent = isPreDep ? T.ctaPre : T.ctaArr;
 
       let frac = 0.5;
       if (isLanded) frac = 1.0;
@@ -737,12 +1049,40 @@
       if (wxPen >= 5) reasonTag = T.wxDelay;
 
       const offsets = [baseOff[0] + Math.floor(wxPen/3), baseOff[1] + Math.floor(rushDelta/2) + wxPen, baseOff[2] + rushDelta + wxPen];
-      const isExitDone = isLanded && effArrMs && (nowMs > effArrMs + offsets[2] * 60000);
+      const isExitDone = Boolean(isLanded && effArrMs && (nowMs > effArrMs + offsets[2] * 60000));
+      isCurrentExitDone = isExitDone;
 
       const depStr = formatShiftedTime(depMs, depOffsetMin);
       const schedDepStr = formatShiftedTime(schedDepMs, depOffsetMin);
       const arrStr = formatShiftedTime(effArrMs, arrOffsetMin);
       const schedArrStr = formatShiftedTime(schedArrMs, arrOffsetMin);
+
+      // 날짜 변경(+1일/-1일) 배지 및 항공사 콜사인 서브타이틀 반영
+      const dayBadgeEl = document.getElementById('dayDiffBadge');
+      if (depMs && effArrMs) {
+        const dLocal = new Date(depMs + depOffsetMin * 60000);
+        const aLocal = new Date(effArrMs + arrOffsetMin * 60000);
+        const dDayUtc = Date.UTC(dLocal.getUTCFullYear(), dLocal.getUTCMonth(), dLocal.getUTCDate());
+        const aDayUtc = Date.UTC(aLocal.getUTCFullYear(), aLocal.getUTCMonth(), aLocal.getUTCDate());
+        const diffDays = Math.round((aDayUtc - dDayUtc) / 86400000);
+        if (diffDays !== 0) {
+          dayBadgeEl.style.display = 'inline-block';
+          dayBadgeEl.textContent = diffDays > 0 ? `+${diffDays}` : `${diffDays}`;
+        } else {
+          dayBadgeEl.style.display = 'none';
+        }
+      }
+
+      const subParts = [];
+      if (airlineMap.name) subParts.push(airlineMap.name);
+      if (raw.callSign && raw.callSign.toUpperCase() !== f.flight_iata.toUpperCase()) subParts.push(raw.callSign);
+      const airlineSubEl = document.getElementById('airlineSub');
+      if (subParts.length > 0) {
+        airlineSubEl.style.display = 'block';
+        airlineSubEl.textContent = subParts.join(' • ');
+      } else {
+        airlineSubEl.style.display = 'none';
+      }
 
       const hasDepShifted = schedDepMs && depMs && Math.abs(depMs - schedDepMs) >= 300000;
       const hasArrShifted = schedArrMs && effArrMs && Math.abs(effArrMs - schedArrMs) >= 300000;
@@ -805,7 +1145,6 @@
       const beltStr = memBelt || f.baggage_belt || T.tbd;
       document.getElementById('bagBelt').textContent = beltStr;
 
-      // 3단계 공항 세부 메타(체크인·활주로) 및 기체 카드
       const metaChips = [];
       if (depMap.checkInDesk) metaChips.push(`${T.checkin} ${depMap.checkInDesk}`);
       if (depMap.runway) metaChips.push(`${depIata} ${T.rwy} ${depMap.runway}`);
@@ -870,7 +1209,7 @@
       for (let i = 0; i <= 100; i++) {
         const s = i / 100;
         fullPts.push(interpolateGC(depLoc.lat, depLoc.lon, arrLoc.lat, arrLoc.lon, s));
-        if (s <= 1.0 && !isPreDep) {
+        if (!isPreDep) {
           donePts.push(interpolateGC(depLoc.lat, depLoc.lon, curLat, curLon, s));
         }
       }
@@ -878,9 +1217,13 @@
       const activeLineColor = isDayMode ? '#1D4ED8' : '#38BDF8';
       const plannedLineColor = isDayMode ? 'rgba(51, 65, 85, 0.35)' : 'rgba(255, 255, 255, 0.28)';
 
-      L.polyline(fullPts, { color: plannedLineColor, weight: 2.5 }).addTo(layerGroup);
+      for (const seg of splitDatelineSegments(fullPts)) {
+        L.polyline(seg, { color: plannedLineColor, weight: 2.5 }).addTo(layerGroup);
+      }
       if (donePts.length > 1) {
-        L.polyline(donePts, { color: activeLineColor, weight: 4.0 }).addTo(layerGroup);
+        for (const seg of splitDatelineSegments(donePts)) {
+          L.polyline(seg, { color: activeLineColor, weight: 4.0 }).addTo(layerGroup);
+        }
       }
 
       L.marker([depLoc.lat, depLoc.lon], {
@@ -910,16 +1253,28 @@
       }
     }
 
+    drawSolarTerminator();
+    setInterval(drawSolarTerminator, 60000);
+
     setInterval(() => {
-      if (currentFlight) {
+      if (currentFlight && !document.hidden) {
         document.getElementById('syncLabel').textContent = T.syncNow;
         renderFlight(false);
       }
     }, 1000);
 
+    // 탭 활성화 상태 및 운항 완료 여부에 맞춘 저비용 적응형 공유 캐시 폴링
     setInterval(() => {
-      if (currentFlight) fetchFlightData(true);
+      if (currentFlight && !document.hidden && !isCurrentExitDone) {
+        fetchFlightData(false);
+      }
     }, 60000);
+
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden && currentFlight && !isCurrentExitDone && (Date.now() - lastFetchEpochMs > 45000)) {
+        fetchFlightData(false);
+      }
+    });
 
     fetchFlightData(false);
   </script>
