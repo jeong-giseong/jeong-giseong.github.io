@@ -1,72 +1,101 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>SkyTrack Live — 실시간 착륙 카운트다운</title>
+  <title>SkyTrack Live</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Pretendard", sans-serif; }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Pretendard", "Segoe UI", Roboto, sans-serif; }
     body { background: #090d16; color: #f8fafc; height: 100dvh; display: flex; flex-direction: column; overflow: hidden; }
     #map { flex: 1; width: 100%; background: #090d16; }
     .top-pill {
       position: fixed; top: 14px; left: 14px; right: 14px; z-index: 1000;
       display: flex; justify-content: space-between; align-items: center;
-      background: rgba(15, 23, 42, 0.88); backdrop-filter: blur(10px);
-      padding: 10px 14px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.1);
+      background: rgba(15, 23, 42, 0.88); backdrop-filter: blur(12px);
+      padding: 10px 14px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.12);
     }
-    .badge { font-size: 11px; font-weight: 700; padding: 4px 9px; border-radius: 99px; background: rgba(16,185,129,0.18); color: #34d399; }
+    .badge { font-size: 11px; font-weight: 800; padding: 4px 9px; border-radius: 99px; background: rgba(16,185,129,0.18); color: #34d399; }
     .badge.est { background: rgba(245,158,11,0.2); color: #fbbf24; }
     .card {
       background: #0f172a; border-top: 1px solid rgba(255,255,255,0.12);
       padding: 18px 18px 24px; border-radius: 22px 22px 0 0; z-index: 1000;
       box-shadow: 0 -10px 30px rgba(0,0,0,0.55);
     }
-    .route-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-    .iata { font-size: 28px; font-weight: 800; letter-spacing: 0.5px; }
-    .countdown { font-size: 14px; font-weight: 700; color: #38bdf8; text-align: center; }
+    .route-row { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 12px; }
+    .iata { font-size: 27px; font-weight: 900; letter-spacing: 0.5px; }
+    .countdown { font-size: 13.5px; font-weight: 700; color: #38bdf8; text-align: center; flex: 1; }
     .meta-grid {
       display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;
       background: rgba(255,255,255,0.04); padding: 11px; border-radius: 14px; margin-bottom: 14px;
     }
-    .meta-item span { display: block; font-size: 11px; color: #94a3b8; margin-bottom: 3px; }
+    .meta-item span { display: block; font-size: 11px; color: #94a3b8; margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .meta-item strong { font-size: 15px; color: #f1f5f9; }
     .cta-btn {
       display: block; width: 100%; text-align: center; text-decoration: none;
       background: linear-gradient(135deg, #2563eb, #0891b2); color: #fff;
-      font-weight: 700; font-size: 14px; padding: 13px; border-radius: 14px;
+      font-weight: 800; font-size: 13.5px; padding: 13px; border-radius: 14px;
     }
   </style>
 </head>
 <body>
   <div class="top-pill">
     <strong id="flightTitle">SkyTrack Live</strong>
-    <span id="sigBadge" class="badge">SHARED RADAR</span>
+    <span id="sigBadge" class="badge">LIVE ADS-B</span>
   </div>
   <div id="map"></div>
   <div class="card">
     <div class="route-row">
       <div><div class="iata" id="depIata">---</div></div>
-      <div class="countdown" id="etaCountdown">운항 스냅샷 불러오는 중...</div>
+      <div class="countdown" id="etaCountdown">...</div>
       <div style="text-align:right"><div class="iata" id="arrIata">---</div></div>
     </div>
     <div class="meta-grid">
-      <div class="meta-item"><span>도착 터미널</span><strong id="arrTerm">-</strong></div>
-      <div class="meta-item"><span>도착 게이트</span><strong id="arrGate">-</strong></div>
-      <div class="meta-item"><span>수하물 벨트</span><strong id="bagBelt">-</strong></div>
+      <div class="meta-item"><span id="lblTerm">Terminal</span><strong id="arrTerm">-</strong></div>
+      <div class="meta-item"><span id="lblGate">Gate</span><strong id="arrGate">-</strong></div>
+      <div class="meta-item"><span id="lblBelt">Baggage</span><strong id="bagBelt">-</strong></div>
     </div>
-    <a class="cta-btn" id="openAppBtn" href="#">앱에서 선행기체 지연·벨트 즉시 알림 받기</a>
+    <a class="cta-btn" id="openAppBtn" href="https://play.google.com/store/apps/details?id=com.jgsoft.skytrack">Get Instant Gate &amp; Belt Alerts in SkyTrack</a>
   </div>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script>
-    // 기존 skytrack-view.html에 설정된 본인의 skytrack-proxy URL로 교체하세요
     const PROXY_URL = "https://uwljunvyyclkrezqotmy.supabase.co/functions/v1/skytrack-proxy";
 
+    const I18N = {
+      ko: { title: "실시간 마중 뷰", loading: "운항 스냅샷 불러오는 중...", wait_init: "앱에서 첫 조회 후 실시간 링크가 활성화됩니다", term: "도착 터미널", gate: "도착 게이트", belt: "수하물 벨트", tbd: "배정 대기", landed: "{arr} 착륙 완료", eta_hm: "착륙까지 약 {h}시간 {m}분", eta_m: "착륙까지 약 {m}분", est: "추정 중", done: "착륙 완료", cta: "SkyTrack 앱에서 지연·수하물 벨트 즉시 알림 받기" },
+      en: { title: "Live Arrival Radar", loading: "Loading flight snapshot...", wait_init: "Activates once searched in SkyTrack app", term: "Arr Terminal", gate: "Arr Gate", belt: "Baggage Belt", tbd: "Pending", landed: "Landed at {arr}", eta_hm: "Landing in ~{h}h {m}m", eta_m: "Landing in ~{m}m", est: "ESTIMATING", done: "LANDED", cta: "Get Early Delay & Belt Alerts in SkyTrack App" },
+      ja: { title: "リアルタイム到着レーダー", loading: "フライト情報を取得中...", wait_init: "アプリで検索後にリンクが有効になります", term: "到着ターミナル", gate: "到着ゲート", belt: "手荷物ベルト", tbd: "未定", landed: "{arr} 着陸完了", eta_hm: "着陸まで約{h}時間{m}分", eta_m: "着陸まで約{m}分", est: "推定中", done: "着陸済", cta: "SkyTrackアプリで遅延・手荷物ベルト通知を受け取る" },
+      zh: { title: "实时接机雷达", loading: "正在加载航班快照...", wait_init: "在App内首次查询后激活实时链接", term: "到达航站楼", gate: "到达登机口", belt: "行李转盘", tbd: "待分配", landed: "已降落 {arr}", eta_hm: "距降落约 {h}小时 {m}分", eta_m: "距降落约 {m}分钟", est: "估算中", done: "已降落", cta: "在 SkyTrack 获取前序延误与行李转盘实时提醒" },
+      es: { title: "Radar de Llegada", loading: "Cargando vuelo...", wait_init: "Se activa tras consultar en la app", term: "Terminal", gate: "Puerta", belt: "Equipaje", tbd: "Pendiente", landed: "Aterrizó en {arr}", eta_hm: "Aterriza en ~{h}h {m}m", eta_m: "Aterriza en ~{m}m", est: "ESTIMANDO", done: "ATERRIZÓ", cta: "Recibir alertas de retraso y equipaje en SkyTrack" },
+      fr: { title: "Radar d'Arrivée", loading: "Chargement du vol...", wait_init: "Actif après recherche dans l'application", term: "Terminal", gate: "Porte", belt: "Bagages", tbd: "En attente", landed: "Atterri à {arr}", eta_hm: "Atterrissage dans ~{h}h {m}m", eta_m: "Atterrissage dans ~{m}m", est: "ESTIMATION", done: "ATTERRI", cta: "Recevoir les alertes retard et bagages sur SkyTrack" },
+      de: { title: "Live-Ankunftsradar", loading: "Flugdaten laden...", wait_init: "Wird nach Suche in der App aktiviert", term: "Terminal", gate: "Gate", belt: "Gepäckband", tbd: "Offen", landed: "Gelandet in {arr}", eta_hm: "Landung in ca. {h}h {m}m", eta_m: "Landung in ca. {m}m", est: "SCHÄTZUNG", done: "GELANDET", cta: "Verspätungs- & Gepäckband-Alarme in SkyTrack öffnen" },
+      pt: { title: "Radar de Chegada", loading: "Carregando voo...", wait_init: "Ativado após consulta no aplicativo", term: "Terminal", gate: "Portão", belt: "Bagagem", tbd: "Aguardando", landed: "Pousou em {arr}", eta_hm: "Pouso em ~{h}h {m}m", eta_m: "Pouso em ~{m}m", est: "ESTIMANDO", done: "POUSOU", cta: "Receber alertas de atraso e esteira no SkyTrack" },
+      ru: { title: "Радар прилета", loading: "Загрузка рейса...", wait_init: "Активируется после поиска в приложении", term: "Терминал", gate: "Выход", belt: "Лента багажа", tbd: "Ожидание", landed: "Приземлился в {arr}", eta_hm: "До посадки ~{h}ч {m}м", eta_m: "До посадки ~{m} мин", est: "РАСЧЕТ", done: "ПРИБЫЛ", cta: "Уведомления о задержках и багаже в SkyTrack" },
+      it: { title: "Radar di Arrivo", loading: "Caricamento volo...", wait_init: "Si attiva dopo la ricerca nell'app", term: "Terminal", gate: "Gate", belt: "Bagagli", tbd: "In attesa", landed: "Atterrato a {arr}", eta_hm: "Atterraggio tra ~{h}h {m}m", eta_m: "Atterraggio tra ~{m}m", est: "STIMA", done: "ATTERRATO", cta: "Ricevi avvisi ritardi e nastri bagagli su SkyTrack" },
+      vi: { title: "Radar Đón Chuyến Bay", loading: "Đang tải chuyến bay...", wait_init: "Kích hoạt sau khi tra cứu trên ứng dụng", term: "Nhà ga đến", gate: "Cửa đến", belt: "Băng chuyền", tbd: "Chờ xếp", landed: "Đã hạ cánh {arr}", eta_hm: "Hạ cánh sau ~{h}g {m}p", eta_m: "Hạ cánh sau ~{m} phút", est: "ƯỚC TÍNH", done: "ĐÃ ĐẾN", cta: "Nhận cảnh báo trễ & băng chuyền hành lý trên SkyTrack" },
+      th: { title: "เรดาร์รับเที่ยวบินสด", loading: "กำลังโหลดข้อมูลเที่ยวบิน...", wait_init: "เปิดใช้งานเมื่อค้นหาในแอปครั้งแรก", term: "อาคารขาเข้า", gate: "ประตูขาเข้า", belt: "สายพานกระเป๋า", tbd: "รอกำหนด", landed: "ลงจอดที่ {arr} แล้ว", eta_hm: "ลงจอดในอีก ~{h}ชม. {m}น.", eta_m: "ลงจอดในอีก ~{m} นาที", est: "ประมาณการ", done: "ลงจอดแล้ว", cta: "รับการแจ้งเตือนเที่ยวบินล่าช้าและสายพานในแอป SkyTrack" }
+    };
+
     const params = new URLSearchParams(location.search);
+    const rawLang = (params.get("lang") || navigator.language || "en").slice(0, 2).toLowerCase();
+    const L = I18N[rawLang] || I18N.en;
+    document.documentElement.lang = I18N[rawLang] ? rawLang : "en";
+
     const flightIata = (params.get("flight") || "KE901").toUpperCase();
     const flightDate = params.get("date") || new Date().toISOString().slice(0, 10);
-    document.getElementById("flightTitle").textContent = `✈️ ${flightIata} 실시간 마중 뷰`;
+
+    document.title = `SkyTrack — ${flightIata}`;
+    document.getElementById("flightTitle").textContent = `✈️ ${flightIata} · ${L.title}`;
+    document.getElementById("etaCountdown").textContent = L.loading;
+    document.getElementById("lblTerm").textContent = L.term;
+    document.getElementById("lblGate").textContent = L.gate;
+    document.getElementById("lblBelt").textContent = L.belt;
+    document.getElementById("openAppBtn").textContent = L.cta;
+
+    if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+      document.getElementById("openAppBtn").href = "https://apps.apple.com/app/skytrack";
+    }
 
     const map = L.map("map", { zoomControl: false }).setView([36.5, 127.5], 4);
     L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
@@ -90,7 +119,7 @@
         const res = await fetch(`${PROXY_URL}?action=viral_snapshot&flight=${encodeURIComponent(flightIata)}&date=${encodeURIComponent(flightDate)}`);
         const data = await res.json();
         if (!data.ok || !data.flight) {
-          document.getElementById("etaCountdown").textContent = "앱에서 첫 조회 후 실시간 링크가 활성화됩니다";
+          document.getElementById("etaCountdown").textContent = L.wait_init;
           return;
         }
         snap = data.flight;
@@ -98,7 +127,7 @@
         document.getElementById("arrIata").textContent = snap.arr_iata || "---";
         document.getElementById("arrTerm").textContent = snap.arr_terminal || "-";
         document.getElementById("arrGate").textContent = snap.arr_gate || "-";
-        document.getElementById("bagBelt").textContent = snap.baggage_belt || "배정 대기";
+        document.getElementById("bagBelt").textContent = snap.baggage_belt || L.tbd;
 
         const raw = snap.raw_schedule_json || {};
         const depLoc = raw?.departure?.airport?.location;
@@ -107,12 +136,12 @@
         if (depLoc && arrLoc) {
           const pts = [[depLoc.lat, depLoc.lon], ...wps, [arrLoc.lat, arrLoc.lon]];
           if (routeLine) map.removeLayer(routeLine);
-          routeLine = L.polyline(pts, { color: "#38bdf8", weight: 2.5, dashArray: "6,6", opacity: 0.7 }).addTo(map);
+          routeLine = L.polyline(pts, { color: "#38bdf8", weight: 2.5, dashArray: "6,6", opacity: 0.72 }).addTo(map);
         }
         if (!planeMarker) {
           const icon = L.divIcon({
             className: "",
-            html: `<div id="rotPlane" style="font-size:22px;transform:rotate(${(snap.heading||90)-45}deg)">✈️</div>`,
+            html: `<div style="font-size:22px;transform:rotate(${(snap.heading||90)-45}deg)">✈️</div>`,
             iconSize: [26, 26], iconAnchor: [13, 13]
           });
           planeMarker = L.marker([snap.lat, snap.lon], { icon }).addTo(map);
@@ -126,9 +155,9 @@
         const lastPosMs = snap.last_position_at ? new Date(snap.last_position_at).getTime() : 0;
         const elapsedSec = lastPosMs > 0 ? Math.max(0, (Date.now() - lastPosMs) / 1000) : 999;
         const badge = document.getElementById("sigBadge");
+        const isLanded = (snap.status || "").toUpperCase().includes("LAND");
 
-        // [패치 4] 105초 초과 또는 지상 상태에서는 무한 전진 차단(Clamping)
-        if (!snap.on_ground && snap.is_live_radar && elapsedSec <= 105) {
+        if (!isLanded && !snap.on_ground && snap.is_live_radar && elapsedSec <= 105) {
           const effSec = elapsedSec <= 75 ? elapsedSec : 75 + 15 * Math.sin(((elapsedSec - 75) / 30) * Math.PI / 2);
           const distKm = ((snap.speed_kmh || 0) * effSec) / 3600.0;
           planeMarker.setLatLng(destPoint(snap.lat, snap.lon, snap.heading || 90, distKm));
@@ -136,14 +165,21 @@
           badge.className = "badge";
         } else {
           planeMarker.setLatLng([snap.lat, snap.lon]);
-          badge.textContent = (snap.status || "").toUpperCase().includes("LAND") ? "LANDED" : "ESTIMATING";
+          badge.textContent = isLanded ? L.done : L.est;
           badge.className = "badge est";
         }
 
-        if (snap.arr_time_utc) {
+        if (isLanded) {
+          document.getElementById("etaCountdown").textContent = L.landed.replace("{arr}", snap.arr_iata || "");
+        } else if (snap.arr_time_utc) {
           const remMin = Math.round((new Date(snap.arr_time_utc).getTime() - Date.now()) / 60000);
-          document.getElementById("etaCountdown").textContent =
-            remMin <= 0 ? `${snap.arr_iata} 착륙 완료` : `착륙까지 약 ${Math.floor(remMin/60)}시간 ${remMin%60}분`;
+          if (remMin <= 0) {
+            document.getElementById("etaCountdown").textContent = L.landed.replace("{arr}", snap.arr_iata || "");
+          } else if (remMin >= 60) {
+            document.getElementById("etaCountdown").textContent = L.eta_hm.replace("{h}", Math.floor(remMin / 60)).replace("{m}", remMin % 60);
+          } else {
+            document.getElementById("etaCountdown").textContent = L.eta_m.replace("{m}", remMin);
+          }
         }
       }
       requestAnimationFrame(animate60fps);
